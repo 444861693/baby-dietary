@@ -97,13 +97,6 @@ export default defineConfig({
 })
 ```
 
-## 微信小程序 web-view 使用
-
-若通过 `web-view` 打开本项目，需在小程序后台配置业务域名，例如：
-
-- `www.ruiqiio.cn`
-
-> 注意：填写域名，不包含 `https://` 和路径。
 
 ## 参与贡献
 
