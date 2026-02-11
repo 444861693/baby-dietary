@@ -107,7 +107,58 @@ function parseFeedingData(raw: string): FeedingMonthData[] {
   return months.sort((a, b) => a.month - b.month)
 }
 
-export const feedingMonths = parseFeedingData(rawData)
+function patchSevenMonthData(months: FeedingMonthData[]): FeedingMonthData[] {
+  const day1730Map: Record<string, string> = {
+    '7+18': '米粉+蔬菜泥',
+    '7+19': '米粉+蔬菜泥',
+    '7+20': '米粉+红薯泥',
+    '7+21': '米粉+红薯泥',
+    '7+22': '米粉+南瓜泥',
+    '7+23': '米粉+南瓜泥',
+    '7+24': '米粉+胡萝卜泥',
+    '7+25': '米粉+猪肝粉',
+    '7+26': '米粉+猪肝粉',
+    '7+27': '米粉+玉米泥',
+    '7+28': '米粉+玉米泥',
+    '7+29': '米粉+菠菜泥',
+    '7+30': '米粉+菠菜泥'
+  }
+
+  return months.map((month) => {
+    if (month.month !== 7) {
+      return month
+    }
+
+    const headers = month.timeHeaders.length >= 6 ? month.timeHeaders : [...month.timeHeaders, '17:30']
+    const targetIndex = headers.findIndex((header) => header === '17:30')
+
+    const plans = month.plans.map((plan) => {
+      const slots = [...plan.slots]
+
+      while (slots.length < headers.length) {
+        slots.push('')
+      }
+
+      const extraMeal = day1730Map[plan.dayLabel]
+      if (targetIndex > -1 && extraMeal) {
+        slots[targetIndex] = extraMeal
+      }
+
+      return {
+        ...plan,
+        slots
+      }
+    })
+
+    return {
+      ...month,
+      timeHeaders: headers,
+      plans
+    }
+  })
+}
+
+export const feedingMonths = patchSevenMonthData(parseFeedingData(rawData))
 
 export const quickRules = [
   '新食材采用“连续 3 天观察法”，确认不过敏再加新食物。',
